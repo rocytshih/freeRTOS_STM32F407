@@ -19,7 +19,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "FreeRTOS.h"
+#include "list.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -102,6 +103,10 @@ int main(void)
     HAL_Delay(100);
     HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
     HAL_Delay(100);
+
+    ListItem_t List_Item1;
+    ListItem_t List_Item2; 
+    ListItem_t List_Item3;
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
