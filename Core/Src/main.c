@@ -41,6 +41,10 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+List_t List;
+ListItem_t List_Item1;
+ListItem_t List_Item2; 
+ListItem_t List_Item3;
 
 /* USER CODE BEGIN PV */
 
@@ -95,6 +99,17 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+    
+    vListInitialise(&List);
+    vListInitialiseItem(&List_Item1);
+    vListInitialiseItem(&List_Item2);
+    vListInitialiseItem(&List_Item3);
+    List_Item1.xItemValue = 1;
+    List_Item2.xItemValue = 2;
+    List_Item3.xItemValue = 3;
+    vListInsert(&List, &List_Item1);
+    vListInsert(&List, &List_Item2);
+    vListInsert(&List, &List_Item3);
     HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
     HAL_Delay(100);
     HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
@@ -103,10 +118,6 @@ int main(void)
     HAL_Delay(100);
     HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
     HAL_Delay(100);
-
-    ListItem_t List_Item1;
-    ListItem_t List_Item2; 
-    ListItem_t List_Item3;
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
