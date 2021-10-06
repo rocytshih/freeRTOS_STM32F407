@@ -33,6 +33,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define TASK1_STACK_SIZE     128
+#define TASK2_STACK_SIZE     128
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -46,6 +48,12 @@ ListItem_t List_Item1;
 ListItem_t List_Item2; 
 ListItem_t List_Item3;
 
+StackType_t Task1Stack[TASK1_STACK_SIZE];
+StackType_t Task2Stack[TASK2_STACK_SIZE];
+
+TCB_t Task1TCB;
+TCB_t Task2TCB;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -54,7 +62,27 @@ ListItem_t List_Item3;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
+void Task1_Entry()
+{
+    while(1)
+    {
+        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+        HAL_Delay(100);
+        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+        HAL_Delay(100);
+    }
+}
 
+void Task2_Entry()
+{
+    while(1)
+    {
+        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+        HAL_Delay(100);
+        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+        HAL_Delay(100);
+    }
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -97,27 +125,21 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {
+  {	
     /* USER CODE END WHILE */
+    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+
+	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+    HAL_Delay(100);
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+    HAL_Delay(100);
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+    HAL_Delay(100);
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
+    HAL_Delay(100);
+    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
+
     
-    vListInitialise(&List);
-    vListInitialiseItem(&List_Item1);
-    vListInitialiseItem(&List_Item2);
-    vListInitialiseItem(&List_Item3);
-    List_Item1.xItemValue = 1;
-    List_Item2.xItemValue = 2;
-    List_Item3.xItemValue = 3;
-    vListInsert(&List, &List_Item1);
-    vListInsert(&List, &List_Item2);
-    vListInsert(&List, &List_Item3);
-    HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_15);
-    HAL_Delay(100);
-    HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_14);
-    HAL_Delay(100);
-    HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
-    HAL_Delay(100);
-    HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
-    HAL_Delay(100);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

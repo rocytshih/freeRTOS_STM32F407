@@ -56,6 +56,7 @@
 #ifndef LIST_H
 #define LIST_H
 
+
 #ifndef INC_FREERTOS_H
     #error "FreeRTOS.h must be included before list.h"
 #endif
@@ -172,6 +173,14 @@ typedef struct xLIST
     listSECOND_LIST_INTEGRITY_CHECK_VALUE         /*< Set to a known value if configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES is set to 1. */
 } List_t;
 
+
+typedef struct tskTaskControlBlock
+{
+    volatile StackType_t *pxTopOfStack;     /*task control block記憶體位置*/
+    ListItem_t  xStateListItem;             /*任務節點*/
+    StackType_t *pxStack;                   /*任務stack起始位置*/
+    char pxTaskName[configMAX_TASK_NAME_LEN];           
+}TCB_t;
 /*
  * Access macro to set the owner of a list item.  The owner of a list item
  * is the object (usually a TCB) that contains the list item.
@@ -317,7 +326,7 @@ typedef struct xLIST
  * @param pxListItem The list item we want to know if is in the list.
  * @return pdTRUE if the list item is in the list, otherwise pdFALSE.
  */
-#define listIS_CONTAINED_WITHIN( pxList, pxListItem )    ( ( ( pxListItem )->pxContainer == ( pxList ) ) ? ( pdTRUE ) : ( pdFALSE ) )
+#define listIS_CONTAINED_WITHIN( pxList, pxListItem )    ( ( ( pxListItem )->pvContainer == ( pxList ) ) ? ( pdTRUE ) : ( pdFALSE ) )
 
 /*
  * Return the list a list item is contained within (referenced from).
@@ -325,7 +334,7 @@ typedef struct xLIST
  * @param pxListItem The list item being queried.
  * @return A pointer to the List_t object that references the pxListItem
  */
-#define listLIST_ITEM_CONTAINER( pxListItem )            ( ( pxListItem )->pxContainer )
+#define listLIST_ITEM_CONTAINER( pxListItem )            ( ( pxListItem )->pvContainer )
 
 /*
  * This provides a crude means of knowing if a list has been initialised, as
