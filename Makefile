@@ -57,6 +57,7 @@ Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_exti.c \
 Core/Src/system_stm32f4xx.c
 
 C_SOURCES += FreeRTOS/src/list.c
+C_SOURCES += FreeRTOS/src/port.c
 
 # ASM sources
 ASM_SOURCES =  \
