@@ -58,7 +58,9 @@ Core/Src/system_stm32f4xx.c
 
 C_SOURCES += FreeRTOS/src/list.c
 C_SOURCES += FreeRTOS/src/port.c
-
+C_SOURCES += FreeRTOS/src/tasks.c
+C_SOURCES += FreeRTOS/src/timers.c
+C_SOURCES += FreeRTOS/src/queue.c
 # ASM sources
 ASM_SOURCES =  \
 startup_stm32f407xx.s

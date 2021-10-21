@@ -21,6 +21,9 @@
 #include "main.h"
 #include "FreeRTOS.h"
 #include "list.h"
+#include "task.h"
+/* Public variables ---------------------------------------------------------*/
+extern List_t pxReadyTasksLists[ configMAX_PRIORITIES ];
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -43,7 +46,9 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-List_t List;
+List_t pxReadyTasksLists_1;
+List_t pxReadyTasksLists_2;
+
 ListItem_t List_Item1;
 ListItem_t List_Item2; 
 ListItem_t List_Item3;
@@ -51,9 +56,11 @@ ListItem_t List_Item3;
 StackType_t Task1Stack[TASK1_STACK_SIZE];
 StackType_t Task2Stack[TASK2_STACK_SIZE];
 
-TCB_t Task1TCB;
-TCB_t Task2TCB;
+StaticTask_t Task1TCB;
+StaticTask_t Task2TCB;
 
+TaskHandle_t Task1_Handle;
+TaskHandle_t Task2_Handle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -62,6 +69,10 @@ TCB_t Task2TCB;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
+void delay(uint32_t count)
+{
+    for(; count!=0; count--);
+}
 void Task1_Entry()
 {
     while(1)
@@ -83,6 +94,56 @@ void Task2_Entry()
         HAL_Delay(100);
     }
 }
+
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer,
+                                    StackType_t **ppxIdleTaskStackBuffer,
+                                    uint32_t *pulIdleTaskStackSize )
+{
+/* If the buffers to be provided to the Idle task are declared inside this
+function then they must be declared static - otherwise they will be allocated on
+the stack and so not exists after this function exits. */
+static StaticTask_t xIdleTaskTCB;
+static StackType_t uxIdleTaskStack[ configMINIMAL_STACK_SIZE ];
+
+    /* Pass out a pointer to the StaticTask_t structure in which the Idle task's
+    state will be stored. */
+    *ppxIdleTaskTCBBuffer = &xIdleTaskTCB;
+
+    /* Pass out the array that will be used as the Idle task's stack. */
+    *ppxIdleTaskStackBuffer = uxIdleTaskStack;
+
+    /* Pass out the size of the array pointed to by *ppxIdleTaskStackBuffer.
+    Note that, as the array is necessarily of type StackType_t,
+    configMINIMAL_STACK_SIZE is specified in words, not bytes. */
+    *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+}
+
+/* configSUPPORT_STATIC_ALLOCATION and configUSE_TIMERS are both set to 1, so the
+application must provide an implementation of vApplicationGetTimerTaskMemory()
+to provide the memory that is used by the Timer service task. */
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer,
+                                     StackType_t **ppxTimerTaskStackBuffer,
+                                     uint32_t *pulTimerTaskStackSize )
+{
+/* If the buffers to be provided to the Timer task are declared inside this
+function then they must be declared static - otherwise they will be allocated on
+the stack and so not exists after this function exits. */
+static StaticTask_t xTimerTaskTCB;
+static StackType_t uxTimerTaskStack[ configTIMER_TASK_STACK_DEPTH ];
+
+    /* Pass out a pointer to the StaticTask_t structure in which the Timer
+    task's state will be stored. */
+    *ppxTimerTaskTCBBuffer = &xTimerTaskTCB;
+
+    /* Pass out the array that will be used as the Timer task's stack. */
+    *ppxTimerTaskStackBuffer = uxTimerTaskStack;
+
+    /* Pass out the size of the array pointed to by *ppxTimerTaskStackBuffer.
+    Note that, as the array is necessarily of type StackType_t,
+    configTIMER_TASK_STACK_DEPTH is specified in words, not bytes. */
+    *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
+}
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -127,19 +188,35 @@ int main(void)
   while (1)
   {	
     /* USER CODE END WHILE */
-    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
-    HAL_Delay(100);
-    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
-    HAL_Delay(100);
-    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-    HAL_Delay(100);
-    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_SET);
-    HAL_Delay(100);
-    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_14, GPIO_PIN_RESET);
-
     
+    Task1_Handle = xTaskCreateStatic((TaskFunction_t) Task1_Entry,
+                                    (char *)"Task1",
+                                    (uint32_t)TASK1_STACK_SIZE,
+                                    (void *)NULL,
+                                    ( (UBaseType_t) 1 ),
+                                    (StackType_t *)Task1Stack,
+                                    (StaticTask_t *)&Task1TCB);
+    vListInsertEnd(&(pxReadyTasksLists[1]), &(Task1TCB.xDummy3[0]));
+    Task2_Handle = xTaskCreateStatic((TaskFunction_t) Task2_Entry,
+                                    (char *)"Task2",
+                                    (uint32_t)TASK2_STACK_SIZE,
+                                    (void *)NULL,
+                                    ( (UBaseType_t) 2 ),
+                                    (StackType_t *)Task2Stack,
+                                    (StaticTask_t *)&Task2TCB);
+    vListInsertEnd(&(pxReadyTasksLists[2]), &(Task2TCB.xDummy3[0]));
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+    portDISABLE_INTERRUPTS();
+    vTaskStartScheduler();
+    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+    for(;;)
+    {
+        // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_RESET);
+        // HAL_Delay(100);
+        // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
+        // HAL_Delay(100);
+    }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

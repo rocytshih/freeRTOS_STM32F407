@@ -374,7 +374,7 @@ static variables must be declared volatile. */
 PRIVILEGED_DATA TCB_t * volatile pxCurrentTCB = NULL;
 
 /* Lists for ready and blocked tasks. --------------------*/
-PRIVILEGED_DATA static List_t pxReadyTasksLists[ configMAX_PRIORITIES ];/*< Prioritised ready tasks. */
+List_t pxReadyTasksLists[ configMAX_PRIORITIES ];/*< Prioritised ready tasks. */
 PRIVILEGED_DATA static List_t xDelayedTaskList1;						/*< Delayed tasks. */
 PRIVILEGED_DATA static List_t xDelayedTaskList2;						/*< Delayed tasks (two lists are used - one for delays that have overflowed the current tick count. */
 PRIVILEGED_DATA static List_t * volatile pxDelayedTaskList;				/*< Points to the delayed task list currently being used. */
